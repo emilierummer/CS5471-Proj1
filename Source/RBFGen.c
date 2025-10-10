@@ -3,6 +3,8 @@
 #include <string.h>
 #include <openssl/sha.h>
 
+#define NUM_HASHES 3
+
 /**
  * Hash an IP using a key and SHA256
  */
@@ -28,6 +30,15 @@ int hashWithKey(int key, const char *ip, int m) {
 }
 
 /**
+ * Get which row of the RBF to use based on the hash mod 2 value
+ */
+int getRbfRow(int col) {
+    char colAsString[2];
+    snprintf(colAsString, sizeof(colAsString), "%d", col);
+    return hashWithKey(0, colAsString, 2);
+}
+
+/**
  * Initialize the RBF to default values
  * - Set bits to either 0 or 1 based on the hash mod 2 value
  * - Only store the first row of the RBF
@@ -37,9 +48,8 @@ int *initRBF(int m) {
     int *rbf = malloc(m * sizeof(int));
     for (int i = 0; i < m; i++) {
         // Hash column index with key 0 and mod 2
-        char colAsString[2];
-        snprintf(colAsString, sizeof(colAsString), "%d", i);
-        rbf[i] = hashWithKey(2, colAsString, 2);
+        int row = getRbfRow(i);
+        rbf[i] = row;
     }
     // Return a pointer to the array
     return rbf;
@@ -48,10 +58,14 @@ int *initRBF(int m) {
 /**
  * Insert an IP address into the RBF
  */
-void insertIP(char ip[], int m) {
-    printf("Inserting IP: %s\n", ip);
-    for (int i = 1; i <= 8; i++) {
-        printf("\tHash with key %d: %d\n", i, hashWithKey(i, ip, m));
+void insertIP(int *rbf, char ip[], int m) {
+    for (int i = 1; i <= NUM_HASHES; i++) {
+        // Get which column we're setting
+        int rbfCol = hashWithKey(i, ip, m);
+
+        // Check if we should be using the first or second row of the bloom filter
+        int row = getRbfRow(rbfCol);
+        rbf[rbfCol] = (row == 0) ? 1 : 0;
     }
 }
 
@@ -89,8 +103,8 @@ int main(int argc, char *argv[]) {
     //         }
     //     }
     // }
-    insertIP("192.168.0.000", m);
-    insertIP("192.168.0.001", m);
+    insertIP(rbf, "192.168.0.000", m);
+    insertIP(rbf, "192.168.0.001", m);
 
     // Create output file (or clear it if it already exists)
     FILE *file = fopen(outputFileName, "w");
@@ -104,7 +118,8 @@ int main(int argc, char *argv[]) {
         fprintf(file, "%d", rbf[i]);
     }
 
-    // Close file
+    // Cleanup
+    free(rbf);
     fclose(file);
     return 0;
 }
