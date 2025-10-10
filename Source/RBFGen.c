@@ -11,21 +11,20 @@ int hashWithKey(int key, const char *ip, int m) {
     char combined[16];
     snprintf(combined, sizeof(combined), "%d%s", key, ip);
 
-    printf("Hashing combined string: %s\n", combined);
-
     // Hash the combined string
     unsigned char hash[SHA256_DIGEST_LENGTH];
-
     SHA256((const unsigned char *)combined, strlen(combined), hash);
 
-    printf("SHA256: ");
-    for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-        printf("%02x", hash[i]);
+    // Get the least significant 24 bits of the hash
+    unsigned int finalHash = 0;
+    for (int i = SHA256_DIGEST_LENGTH - 3; i < SHA256_DIGEST_LENGTH; i++) {
+        finalHash = (finalHash << 8) | hash[i];
     }
-    printf("\n");
+    // Keep only the least significant 20 bits
+    finalHash = finalHash & 0xFFFFF;
 
-    // Mod the result with m
-    // Return
+    // Mod the result with m and return
+    return finalHash % m;
 }
 
 /**
@@ -85,7 +84,6 @@ int main(int argc, char *argv[]) {
     //         }
     //     }
     // }
-    hashWithKey(1, (char *)"192.168.0000", m);
     hashWithKey(2, (char *)"192.168.0000", m);
 
     // Close file
