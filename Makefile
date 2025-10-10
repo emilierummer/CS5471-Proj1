@@ -1,17 +1,20 @@
-CC := g++
-CFLAGS := -std=c++17 -O2 -I./Source
+
+CC := cc
+CFLAGS := -O2 -I./Source
+LDFLAGS :=
 
 SRCDIR := Source
-IPCHECK_SRC := $(SRCDIR)/IPCheck.cpp
-RBFGEN_SRC := $(SRCDIR)/RBFGen.cpp
+IPCHECK_SRC := $(SRCDIR)/IPCheck.c
+RBFGEN_SRC := $(SRCDIR)/RBFGen.c
 
 all: ipcheck rbfgen
 
 ipcheck: $(IPCHECK_SRC)
-	$(CC) $(CFLAGS) -o ipcheck $(IPCHECK_SRC)
+	$(CC) $(CFLAGS) -o ipcheck $(IPCHECK_SRC) $(LDFLAGS)
 
+# RBFGen depends on OpenSSL for SHA256
 rbfgen: $(RBFGEN_SRC)
-	$(CC) $(CFLAGS) -o rbfgen $(RBFGEN_SRC)
+	$(CC) $(CFLAGS) -o rbfgen $(RBFGEN_SRC) -lcrypto $(LDFLAGS)
 
 .PHONY: run-ipcheck run-rbfgen clean
 
