@@ -19,3 +19,6 @@ m2 = 147,077 bits
 c2 = 7.12
 
 # Compilation Steps
+1. Run `make all`
+2. Run `./RBFGen m output.txt`
+3. Run `./IPCheck output.txt ip`
