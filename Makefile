@@ -10,26 +10,18 @@ HEADERS := $(SRCDIR)/HashUtils.h
 HASHUTILS_SRC := $(SRCDIR)/HashUtils.c
 HASHUTILS_OBJ := HashUtils.o
 
-all: ipcheck rbfgen
+all: IPCheck RBFGen
 
 
-ipcheck: $(IPCHECK_SRC) $(HEADERS)
+IPCheck: $(IPCHECK_SRC) $(HEADERS)
 	$(CC) $(CFLAGS) -c $(HASHUTILS_SRC) -o $(HASHUTILS_OBJ)
-	$(CC) $(CFLAGS) -o ipcheck $(IPCHECK_SRC) $(HASHUTILS_OBJ) -lcrypto $(LDFLAGS)
+	$(CC) $(CFLAGS) -o IPCheck $(IPCHECK_SRC) $(HASHUTILS_OBJ) -lcrypto $(LDFLAGS)
 
 # RBFGen depends on OpenSSL for SHA256
 
-rbfgen: $(RBFGEN_SRC) $(HEADERS)
+RBFGen: $(RBFGEN_SRC) $(HEADERS)
 	$(CC) $(CFLAGS) -c $(HASHUTILS_SRC) -o $(HASHUTILS_OBJ)
-	$(CC) $(CFLAGS) -o rbfgen $(RBFGEN_SRC) $(HASHUTILS_OBJ) -lcrypto $(LDFLAGS)
-
-.PHONY: run-ipcheck run-rbfgen clean
-
-run-ipcheck: ipcheck
-	./ipcheck
-
-run-rbfgen: rbfgen
-	./rbfgen
+	$(CC) $(CFLAGS) -o RBFGen $(RBFGEN_SRC) $(HASHUTILS_OBJ) -lcrypto $(LDFLAGS)
 
 clean:
-	rm -f ipcheck rbfgen HashUtils.o
+	rm -f IPCheck RBFGen HashUtils.o
