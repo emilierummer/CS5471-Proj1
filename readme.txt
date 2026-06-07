@@ -1,3 +1,9 @@
+# RBF
+
+This assignment implements a Random Bloom Filter for checking dangerous IP addresses. For the sake of the assignment, IPs starting with 192.168 are considered dangerous.
+
+The RBF may have false positives but will never have false negatives. This means it may mark a safe address as dangerous but it will never mark a dangerous address as safe.
+
 # Questions
 
 a.  List space cost = 13 * 8 * 10,000 = 1,040,000 bits
